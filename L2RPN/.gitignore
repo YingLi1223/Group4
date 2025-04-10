@@ -1,0 +1,55 @@
+# Documentation
+Papers/
+Papers/*
+
+# Data
+StartingKit/input_data_local/
+StartingKit/input_data_local/*
+StartingKit/example_submissions/
+StartingKit/example_submissions/*
+StartingKit/utils/
+StartingKit/utils/*
+StartingKit/submission*
+StartingKit/baseline/
+StartingKit/baseline/*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Environments
+.venv/
+.venv/*
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Mac OS
+.DS_Store
+
+# Logs
+logs/
+logs/*
+
+# wandb
+wandb/
+runs/
+runs/* 
+
+# VS Code
+.vscode/
+.vscode/*
+
+# Junk Files
+agent_logs.txt
+result.txt
