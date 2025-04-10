@@ -14,6 +14,9 @@ def test_wrapper():
         verbose=True
     )
 
+    ) 
+
+
     n_eps, ep_ids = env.get_env_size()
     print(f"🟢 Environment has {n_eps} episodes")
 
@@ -21,7 +24,7 @@ def test_wrapper():
         obs_vec, info, terminated, truncated = env.reset(options={"time serie id": ep_ids[0]})
         print(f"✅ Obs shape: {obs_vec.shape}")
     except Exception as e:
-        print("❌ Exception during reset:", e)
+        print("Exception during reset:", e)
         return
     
     n_gen = env.env.n_gen
