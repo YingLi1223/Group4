@@ -14,7 +14,7 @@ def test_wrapper():
         verbose=True
     )
 
-    ) 
+    
 
 
     n_eps, ep_ids = env.get_env_size()
@@ -22,10 +22,15 @@ def test_wrapper():
 
     try:
         obs_vec, info, terminated, truncated = env.reset(options={"time serie id": ep_ids[0]})
-        print(f"✅ Obs shape: {obs_vec.shape}")
+        
+        obs = env.tracker.state
+        print("🔍 Generator voltage sample (prod_v):", obs.prod_v[:3])
+        print("🔍 Line voltage OR sample (v_or):", obs.v_or[:3])
+
     except Exception as e:
         print("Exception during reset:", e)
         return
+
     
     n_gen = env.env.n_gen
     action_dim = 2 * n_gen  # redispatch + curtailment

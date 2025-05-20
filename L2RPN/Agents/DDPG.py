@@ -59,6 +59,7 @@ class DDPG(BaseAgent):
         self.q_optimizer.zero_grad()
         q_loss = self._compute_loss_q(batch)
         q_loss.backward()
+        clip_grad_norm_(self.ac.q.parameters(), max_norm=5.0)  # Critic gradient cropping
         self.q_optimizer.step()
 
         # Freeze Critic parameters to speed up eval
@@ -68,6 +69,7 @@ class DDPG(BaseAgent):
         self.pi_optimizer.zero_grad()
         pi_loss = self._compute_loss_pi(batch)
         pi_loss.backward()
+        clip_grad_norm_(self.ac.pi.parameters(), max_norm=5.0)  # Actor gradient cropping
         self.pi_optimizer.step()
 
         # Unfreeze critic params
@@ -102,6 +104,9 @@ class DDPG(BaseAgent):
         obs = torch.Tensor(batch.observations).to(self.device)
         q_pi = self.ac.q(obs, self.ac.pi(obs))
         return -q_pi.mean()
+
+
+
     
     def save_checkpoint(self, dir: Path, suffix: str = ""):
         pass

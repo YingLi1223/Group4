@@ -8,7 +8,7 @@ import numpy as np
 from dataclasses import dataclass
 from copy import deepcopy
 
-from AgentEmporium.Abstract import PrioritizedBatch
+# from AgentEmporium.Abstract import PrioritizedBatch
 
 from ..Abstract import BaseAgent, VanillaBatch
 
@@ -166,8 +166,10 @@ class SAC(BaseAgent):
     def act(self, obs: np.ndarray, *args, deterministic:bool=False, **kwargs):
         return self.ac.act(torch.as_tensor(obs, dtype=torch.float32, device=self.device), deterministic)
     
-    def _compute_loss(self, batch: PrioritizedBatch) -> tuple[torch.Tensor]:
-        pass
+    # def _compute_loss(self, batch: PrioritizedBatch) -> tuple[torch.Tensor]:
+    #     pass
+    def _compute_loss(self, batch: VanillaBatch) -> tuple[torch.Tensor]:
+        raise NotImplementedError("Not used in Vanilla ReplayBuffer mode.")
 
     def save_checkpoint(self, dir: Path, suffix: str = ""):
         pass

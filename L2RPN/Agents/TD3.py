@@ -58,16 +58,19 @@ class TD3(BaseAgent):
         for p in self.target_ac.parameters():
             p.requires_grad = False
 
-    def act(self, obs: np.ndarray, *args, with_noise:bool=True, **kwargs):
-        act = self.ac.act(torch.as_tensor(obs, device=self.device))
-        if with_noise:
-            act += self.act_noise * np.random.randn(self.act_dim)
-        return np.clip(act, -self.act_limit, self.act_limit)
+    def act(self, obs, *, with_noise=True, noise_scale=None, deterministic=False, **kwargs):
+        action = self.ac.act(torch.as_tensor(obs, device=self.device))
+        if with_noise and not deterministic:
+            noise = (noise_scale if noise_scale is not None else self.act_noise)
+            action += noise * np.random.randn(self.act_dim)
+        return np.clip(action, -self.act_limit, self.act_limit)
+
 
     def _compute_loss_pi(self, batch:VanillaBatch) -> torch.Tensor:
         obs = torch.as_tensor(batch.observations, device=self.device)
         q1_pi = self.ac.q1(obs, self.ac.pi(obs))
         return -q1_pi.mean()
+    
 
     def _compute_loss_q(self, batch:VanillaBatch) -> torch.Tensor:
         tensorize = lambda x, dtype: torch.as_tensor(x, dtype=dtype, device=self.device)
@@ -103,6 +106,7 @@ class TD3(BaseAgent):
 
         q_loss = elwise_loss.mean()
 
+
         return q_loss
 
 
@@ -117,6 +121,11 @@ class TD3(BaseAgent):
         self.q_optimizer.zero_grad()
         q_loss = self._compute_loss_q(batch)
         q_loss.backward()
+
+        # Adding Gradient Trimming for Q Networks
+        torch.nn.utils.clip_grad_norm_(self.ac.q1.parameters(), max_norm=5.0)
+        torch.nn.utils.clip_grad_norm_(self.ac.q2.parameters(), max_norm=5.0)
+
         self.q_optimizer.step()
 
         # Update pi and target networks with delay
@@ -128,6 +137,10 @@ class TD3(BaseAgent):
             self.pi_optimizer.zero_grad()
             pi_loss = self._compute_loss_pi(batch)
             pi_loss.backward()
+
+            # Adding Gradient Trimming for Policy Networks
+            torch.nn.utils.clip_grad_norm_(self.ac.pi.parameters(), max_norm=5.0)
+
             self.pi_optimizer.step()
 
             for p in self.q_params:
@@ -137,10 +150,12 @@ class TD3(BaseAgent):
                 for target_p, p in zip(self.target_ac.parameters(), self.ac.parameters()):
                     target_p.mul_(1 - self.tau)
                     target_p.add_(self.tau * p)
+
         self.timer += 1
         if pi_loss is not None:
             pi_loss = pi_loss.cpu().item()
         return pi_loss, q_loss.cpu().item()
+
 
 
 

@@ -16,7 +16,7 @@ class MLPActor(nn.Module):
         pi_sizes = [obs_dim] + hidden_sizes + [act_dim]
         self.obs_dim = obs_dim
         self.act_dim = act_dim
-        self.pi = mlp(pi_sizes, activation)
+        self.pi = mlp(pi_sizes, activation,output_activation=nn.Tanh) # 增加了tanh
         self.act_limit = act_limit
 
     def forward(self, obs:torch.Tensor):
